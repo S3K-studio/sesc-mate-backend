@@ -209,6 +209,44 @@ class UserView(APIView):
         }
         return Response(user_object, status=status.HTTP_200_OK)
 
+    def delete(self, request: Request) -> Response:
+        response_json = ResponseJson()
+
+        """Working with headers"""
+        header_handler = HeaderHandler(request.META)
+
+        if not header_handler.is_headers_valid():
+            return Response(response_json.missing_headers, status=status.HTTP_400_BAD_REQUEST)
+
+        if not header_handler.is_valid():
+            return Response(response_json.invalid_signature, status=status.HTTP_401_UNAUTHORIZED)
+
+        """Working with user"""
+        user_id: int = int(header_handler.vk_header['vk_user_id'])
+        user: UserHandler = UserHandler(user_id)
+        is_user_in_db: bool = user.get_user_from_db()
+
+        if not is_user_in_db:
+            return Response({
+                'success': False,
+                'message': 'User not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        user_object_from_db = User.objects.get(vk_user_id=user_id)
+        user_object = {
+            'vk_user_id': user_object_from_db.vk_user_id,
+            'group': user_object_from_db.group
+        }
+        try:
+            user_object_from_db.delete()
+            return Response(user_object, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(e)
+            return Response({
+                'success': False,
+                'message': type(e).__name__
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class StartupInfo(APIView):
     """Get startup info"""
