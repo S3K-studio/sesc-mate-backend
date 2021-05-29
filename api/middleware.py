@@ -34,10 +34,12 @@ def request_logger(process_request):
         if 'HTTP_X_VK_DATA' in meta['request']['headers'].keys():
             vk_headers = meta['request']['headers']['HTTP_X_VK_DATA']
             for item in vk_headers.split('&'):
-                [key, value] = item.split('=')
-                if key == 'vk_user_id' and value.isdigit():
-                    user = int(value)
-                    break
+                splited_item = item.split('=')
+                if len(splited_item) > 1:
+                    [key, value] = splited_item
+                    if key == 'vk_user_id' and value.isdigit():
+                        user = int(value)
+                        break
             else:
                 user = 'Unauthorized user'
         else:

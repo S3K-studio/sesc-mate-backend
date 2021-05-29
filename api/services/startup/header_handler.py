@@ -19,7 +19,7 @@ class HeaderSerializer:
         for el in self.__elements:
             splited_el = el.split('=')
             if len(splited_el) > 1:
-                [key, value] = el.split('=')
+                [key, value] = splited_el
                 serialized_header[key] = value
         return serialized_header
 
