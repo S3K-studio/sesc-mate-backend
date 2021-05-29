@@ -1,13 +1,13 @@
 **INSTALLING**
 
-`git clone https://github.com/S3K-studio/SESC_MATE-backend.git`  
-`cd SESC_MATE-backend`  
+`git clone https://github.com/S3K-studio/sesc_backend.git`  
+`cd sesc_backend`  
 `python3 -m venv venv`  
 `pip install -r requirements.txt`  
 
 **STARTING**
 
-`python3 manage.py makemigrations`  
+`python3 manage.py createcachetable`  
 `python3 manage.py migrate`  
 `python3 manage.py runserver`
 
