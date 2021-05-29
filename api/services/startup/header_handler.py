@@ -17,8 +17,10 @@ class HeaderSerializer:
     def serialize(self):
         serialized_header: Dict[str, str] = {}
         for el in self.__elements:
-            [key, value] = el.split('=')
-            serialized_header[key] = value
+            splited_el = el.split('=')
+            if len(splited_el) > 1:
+                [key, value] = el.split('=')
+                serialized_header[key] = value
         return serialized_header
 
 
