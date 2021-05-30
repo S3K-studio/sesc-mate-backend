@@ -42,4 +42,6 @@ class HeaderHandler:
         self.vk_header = serializer.serialize()
 
     def is_valid(self) -> bool:
+        if 'sign' not in self.vk_header.keys():
+            return False
         return verification.is_valid(self.vk_header, settings.CLIENT_SECRET_KEY)
