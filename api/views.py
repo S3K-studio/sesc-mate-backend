@@ -268,6 +268,9 @@ class StartupInfo(APIView):
         user: UserHandler = UserHandler(user_id)
         is_user_in_db: bool = user.get_user_from_db()
 
+        if 'day' not in request.query_params or not request.query_params['day'].isdigit():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         day: int = request.query_params['day']
 
         if not is_user_in_db:
