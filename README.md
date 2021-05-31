@@ -1,6 +1,6 @@
 **INSTALLING**
 
-`git clone https://github.com/S3K-studio/sesc_backend.git`  
+`git clone https://github.com/S3K-studio/sesc-mate-backend.git`  
 `cd sesc_backend`  
 `python3 -m venv venv`  
 `pip install -r requirements.txt`  
