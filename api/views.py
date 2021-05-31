@@ -2,6 +2,7 @@ from logging import getLogger
 
 from django.conf import settings
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,62 +20,111 @@ logger = getLogger('logdna')
 vk_api = VkApi(token=settings.VK_API_SECRET_KEY)
 
 
-class ScheduleView(APIView):
-    """Получение расписания"""
+@api_view(['GET'])
+def get_schedule(request: Request) -> Response:
+    """Возвращаем расписание. В запросе параметрами должны быть переданы Класс и День недели"""
+    if 'day' in request.query_params and 'group' in request.query_params and \
+            request.query_params['day'].isdigit() and request.query_params[
+        'group'].isdigit() and 1 <= int(request.query_params['day']) <= 7 and int(
+        request.query_params['group']) in group_choices.groups_dict:
+        force_update = 'force_update' in request.query_params and request.query_params[
+            'force_update'] == '1'
+        schedule = get_parsed_schedule(
+            request.query_params['day'],
+            request.query_params['group'],
+            force_update
+        )
 
-    def get(self, request: Request) -> Response:
-        """Возвращаем расписание. В запросе параметрами должны быть переданы Класс и День недели"""
-        if 'day' in request.query_params and 'group' in request.query_params and \
-                request.query_params['day'].isdigit() and request.query_params[
-            'group'].isdigit() and 1 <= int(request.query_params['day']) <= 7 and int(
+        try:
+            return Response(schedule, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(e)
+            return Response({
+                'success': False,
+                'message': type(e).__name__
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def get_week_schedule(request: Request) -> Response:
+    """Возвращаем расписание. В запросе параметрами должен быть передан Класс"""
+    if 'group' in request.query_params and request.query_params['group'].isdigit() and int(
             request.query_params['group']) in group_choices.groups_dict:
-            force_update = 'force_update' in request.query_params and request.query_params[
-                'force_update'] == '1'
-            schedule = get_parsed_schedule(
-                request.query_params['day'],
+        force_update = 'force_update' in request.query_params and request.query_params[
+            'force_update'] == '1'
+        schedule = [
+            get_parsed_schedule(
+                day,
                 request.query_params['group'],
                 force_update
-            )
+            ) for day in range(1, 7)
+        ]
 
-            try:
-                return Response(schedule, status=status.HTTP_200_OK)
-            except Exception as e:
-                logger.exception(e)
-                return Response({
-                    'success': False,
-                    'message': type(e).__name__
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            return Response(schedule, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(e)
+            return Response({
+                'success': False,
+                'message': type(e).__name__
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class WeekScheduleView(APIView):
-    """Получение расписания на неделю"""
+@api_view(['GET'])
+def get_startup_info(request: Request) -> Response:
+    response_json = ResponseJson()
 
-    def get(self, request: Request) -> Response:
-        """Возвращаем расписание. В запросе параметрами должен быть передан Класс"""
-        if 'group' in request.query_params and request.query_params['group'].isdigit() and int(
-                request.query_params['group']) in group_choices.groups_dict:
-            force_update = 'force_update' in request.query_params and request.query_params[
-                'force_update'] == '1'
-            schedule = [
-                get_parsed_schedule(
-                    day,
-                    request.query_params['group'],
-                    force_update
-                ) for day in range(1, 7)
-            ]
+    # Working with headers
+    header_handler = HeaderHandler(request.META)
 
-            try:
-                return Response(schedule, status=status.HTTP_200_OK)
-            except Exception as e:
-                logger.exception(e)
-                return Response({
-                    'success': False,
-                    'message': type(e).__name__
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+    if not header_handler.is_headers_valid():
+        return Response(response_json.missing_headers, status=status.HTTP_400_BAD_REQUEST)
+
+    if not header_handler.is_valid():
+        return Response(response_json.invalid_signature, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Working with user
+    user_id: int = int(header_handler.vk_header['vk_user_id'])
+    user: UserHandler = UserHandler(user_id)
+    is_user_in_db: bool = user.get_user_from_db()
+
+    if 'day' not in request.query_params or not request.query_params['day'].isdigit():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    day: int = request.query_params['day']
+
+    if not is_user_in_db:
+        return Response(response_json.setup_didnt_completed, status=status.HTTP_200_OK)
+
+    announcements = get_parsed_announcements()
+    custom_announcements = CustomAnnouncement.objects.order_by(
+        '-is_pinned')
+    serialized_announcements = list(map(
+        lambda announcement: {
+            'header': announcement.header,
+            'content': announcement.content,
+            'trustedOrigin': True
+        },
+        custom_announcements
+    ))
+
+    force_update = 'force_update' in request.query_params and request.query_params[
+        'force_update'] == '1'
+    schedule = get_parsed_schedule(day, user.get_group(), force_update)
+    try:
+        return Response(response_json.get_normal_response(user, schedule,
+                                                          serialized_announcements + announcements),
+                        status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.exception(e)
+        return Response({
+            'success': False,
+            'message': type(e).__name__
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserView(APIView):
@@ -240,61 +290,6 @@ class UserView(APIView):
         try:
             user_object_from_db.delete()
             return Response(user_object, status=status.HTTP_200_OK)
-        except Exception as e:
-            logger.exception(e)
-            return Response({
-                'success': False,
-                'message': type(e).__name__
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class StartupInfo(APIView):
-    """Get startup info"""
-
-    def get(self, request: Request) -> Response:
-        response_json = ResponseJson()
-
-        # Working with headers
-        header_handler = HeaderHandler(request.META)
-
-        if not header_handler.is_headers_valid():
-            return Response(response_json.missing_headers, status=status.HTTP_400_BAD_REQUEST)
-
-        if not header_handler.is_valid():
-            return Response(response_json.invalid_signature, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Working with user
-        user_id: int = int(header_handler.vk_header['vk_user_id'])
-        user: UserHandler = UserHandler(user_id)
-        is_user_in_db: bool = user.get_user_from_db()
-
-        if 'day' not in request.query_params or not request.query_params['day'].isdigit():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        day: int = request.query_params['day']
-
-        if not is_user_in_db:
-            return Response(response_json.setup_didnt_completed, status=status.HTTP_200_OK)
-
-        announcements = get_parsed_announcements()
-        custom_announcements = CustomAnnouncement.objects.order_by(
-            '-is_pinned')
-        serialized_announcements = list(map(
-            lambda announcement: {
-                'header': announcement.header,
-                'content': announcement.content,
-                'trustedOrigin': True
-            },
-            custom_announcements
-        ))
-
-        force_update = 'force_update' in request.query_params and request.query_params[
-            'force_update'] == '1'
-        schedule = get_parsed_schedule(day, user.get_group(), force_update)
-        try:
-            return Response(response_json.get_normal_response(user, schedule,
-                                                              serialized_announcements + announcements),
-                            status=status.HTTP_200_OK)
         except Exception as e:
             logger.exception(e)
             return Response({
