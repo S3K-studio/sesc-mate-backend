@@ -38,4 +38,4 @@ class TestUser(APITestCase):
         vk_headers = generate_vk_headers.generate_vk_headers(12345, settings.CLIENT_SECRET_KEY)
         response = self.client.post(url, data=json.dumps(data), content_type='application/json',
                                     **vk_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

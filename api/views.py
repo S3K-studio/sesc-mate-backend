@@ -172,7 +172,7 @@ class UserView(APIView):
             }
             try:
                 serializer.create(validated_data=validated_data)
-                return Response(validated_data, status=status.HTTP_200_OK)
+                return Response(validated_data, status=status.HTTP_201_CREATED)
             except Exception as e:
                 logger.exception(e)
                 return Response({
