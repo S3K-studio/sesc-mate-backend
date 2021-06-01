@@ -110,3 +110,30 @@ class UpdateUserTest(APITestCase):
         response = self.client.put(url, data=json.dumps(self.data), content_type='application/json',
                                    **vk_headers)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class DeleteUserTest(APITestCase):
+    def setUp(self):
+        user_data = {
+            'vk_user_id': 12345,
+            'group': 32,
+            'first_name': 'first_name',
+            'last_name': 'last_name',
+            'sex': 2,
+            'profile_picture_url': ''
+        }
+        serializer = UserSerializer()
+        serializer.create(validated_data=user_data)
+
+    def test_valid_user_delete(self):
+        url = reverse('user')
+        vk_headers = generate_vk_headers.generate_vk_headers(12345, settings.CLIENT_SECRET_KEY)
+        response = self.client.delete(url, data={}, **vk_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_invalid_user_delete(self):
+        url = reverse('user')
+        vk_headers = generate_vk_headers.generate_vk_headers(12345, settings.CLIENT_SECRET_KEY,
+                                                             False)
+        response = self.client.delete(url, data={}, **vk_headers)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
