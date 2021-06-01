@@ -9,7 +9,7 @@ from api.serializers import UserSerializer
 from utils import generate_vk_headers
 
 
-class TestSchedule(APITestCase):
+class ScheduleTest(APITestCase):
     def test_get_schedule(self):
         url = reverse('get-schedule')
         data = {
@@ -20,13 +20,24 @@ class TestSchedule(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class TestWeekSchedule(APITestCase):
+class WeekScheduleTest(APITestCase):
     def test_get_week_schedule(self):
         url = reverse('get-week-schedule')
         data = {
             'group': 32
         }
         response = self.client.get(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class GetStartupInfoTest(APITestCase):
+    def test_get_startup_info(self):
+        url = reverse('startup-info')
+        data = {
+            'day': 1
+        }
+        vk_headers = generate_vk_headers.generate_vk_headers(12345, settings.CLIENT_SECRET_KEY)
+        response = self.client.get(url, data, **vk_headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
