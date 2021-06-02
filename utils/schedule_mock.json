@@ -1,0 +1,70 @@
+[
+  [
+    {
+      "number": 1,
+      "subject": "Информатика",
+      "subgroup": 1,
+      "auditory": "221",
+      "teacher": "Коробицына Э. Г.",
+      "replaced": false
+    },
+    {
+      "number": 1,
+      "subject": "Информатика",
+      "subgroup": 2,
+      "auditory": "221",
+      "teacher": "Зайнуллина А. М.",
+      "replaced": false
+    }
+  ],
+  [
+    {
+      "number": 2,
+      "subject": "Информатика",
+      "subgroup": 1,
+      "auditory": "221",
+      "teacher": "Коробицына Э. Г.",
+      "replaced": false
+    },
+    {
+      "number": 2,
+      "subject": "Информатика",
+      "subgroup": 2,
+      "auditory": "221",
+      "teacher": "Зайнуллина А. М.",
+      "replaced": false
+    }
+  ],
+  {
+    "number": 3,
+    "subject": "Математика",
+    "subgroup": 0,
+    "auditory": "313",
+    "teacher": "Соколова Е. М.",
+    "replaced": false
+  },
+  {
+    "number": 4,
+    "subject": "Математика",
+    "subgroup": 0,
+    "auditory": "313",
+    "teacher": "Соколова Е. М.",
+    "replaced": false
+  },
+  {
+    "number": 5,
+    "subject": "АнглЯзык",
+    "subgroup": 0,
+    "auditory": "Английский",
+    "teacher": "Ярина Е. Г.",
+    "replaced": false
+  },
+  {
+    "number": 6,
+    "subject": "АнглЯзык",
+    "subgroup": 0,
+    "auditory": "Английский",
+    "teacher": "Ярина Е. Г.",
+    "replaced": false
+  }
+]
