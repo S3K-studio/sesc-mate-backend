@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from vk_api import VkApi
 
 from utils import group_choices
+from utils.schedule_mock import ScheduleMock
 from .models import User, CustomAnnouncement
 from .serializers import UserSerializer
 from .services.cache import get_parsed_schedule, get_parsed_announcements
@@ -18,11 +19,16 @@ from .services.startup.user_handler import UserHandler
 
 logger = getLogger('logdna')
 vk_api = VkApi(token=settings.VK_API_SECRET_KEY)
+schedule_mock = ScheduleMock()
 
 
 @api_view(['GET'])
 def get_schedule(request: Request) -> Response:
     """Возвращаем расписание. В запросе параметрами должны быть переданы Класс и День недели"""
+
+    if 'schedule_mock' in request.query_params:
+        return Response(schedule_mock.get_schedule_mock(), status=status.HTTP_200_OK)
+
     if 'day' in request.query_params and 'group' in request.query_params and \
             request.query_params['day'].isdigit() and request.query_params[
         'group'].isdigit() and 1 <= int(request.query_params['day']) <= 7 and int(
@@ -50,6 +56,10 @@ def get_schedule(request: Request) -> Response:
 @api_view(['GET'])
 def get_week_schedule(request: Request) -> Response:
     """Возвращаем расписание. В запросе параметрами должен быть передан Класс"""
+
+    if 'schedule_mock' in request.query_params:
+        return Response([schedule_mock.get_schedule_mock()] * 7, status=status.HTTP_200_OK)
+
     if 'group' in request.query_params and request.query_params['group'].isdigit() and int(
             request.query_params['group']) in group_choices.groups_dict:
         force_update = 'force_update' in request.query_params and request.query_params[
@@ -111,6 +121,11 @@ def get_startup_info(request: Request) -> Response:
         },
         custom_announcements
     ))
+
+    if 'schedule_mock' in request.query_params:
+        return Response(response_json.get_normal_response(user, schedule_mock.get_schedule_mock(),
+                                                          serialized_announcements + announcements),
+                        status=status.HTTP_200_OK)
 
     force_update = 'force_update' in request.query_params and request.query_params[
         'force_update'] == '1'
