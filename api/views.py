@@ -56,6 +56,10 @@ def get_schedule(request: Request) -> Response:
 @api_view(['GET'])
 def get_week_schedule(request: Request) -> Response:
     """Возвращаем расписание. В запросе параметрами должен быть передан Класс"""
+
+    if 'schedule_mock' in request.query_params:
+        return Response([schedule_mock.get_schedule_mock()] * 7, status=status.HTTP_200_OK)
+
     if 'group' in request.query_params and request.query_params['group'].isdigit() and int(
             request.query_params['group']) in group_choices.groups_dict:
         force_update = 'force_update' in request.query_params and request.query_params[
