@@ -118,6 +118,11 @@ def get_startup_info(request: Request) -> Response:
         custom_announcements
     ))
 
+    if 'schedule_mock' in request.query_params:
+        return Response(response_json.get_normal_response(user, schedule_mock.get_schedule_mock(),
+                                                          serialized_announcements + announcements),
+                        status=status.HTTP_200_OK)
+
     force_update = 'force_update' in request.query_params and request.query_params[
         'force_update'] == '1'
     schedule = get_parsed_schedule(day, user.get_group(), force_update)
