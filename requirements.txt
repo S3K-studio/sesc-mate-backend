@@ -35,3 +35,5 @@ urllib3==1.25.10
 vine==5.0.0
 vk-api==11.9.1
 wcwidth==0.2.5
+psycopg2~=2.8.6
+pymorphy2-dicts-ru==2.4.417127.4579844

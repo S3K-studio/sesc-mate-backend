@@ -27,12 +27,11 @@ INSTALLED_APPS = [
 
     # 3rd party applications
     'rest_framework',
-    'vk_api',
-    'celery',
 
     # Local
     'api',
     'notification_bot',
+    'alice',
 ]
 
 MIDDLEWARE = [
