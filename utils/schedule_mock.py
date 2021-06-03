@@ -9,6 +9,11 @@ class ScheduleMock:
     def __init__(self):
         self.schedule_mock = []
 
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(ScheduleMock, cls).__new__(cls)
+        return cls.instance
+
     def get_schedule_mock(self) -> List[Dict]:
         if self.schedule_mock:
             return self.schedule_mock
@@ -19,3 +24,9 @@ class ScheduleMock:
         with open(schedule_mock_json_path, 'r', encoding='utf-8') as schedule:
             self.schedule_mock = json.load(schedule)
         return self.schedule_mock
+
+
+if __name__ == '__main__':
+    first_object = ScheduleMock()
+    second_object = ScheduleMock()
+    print(first_object, second_object, first_object == second_object)
