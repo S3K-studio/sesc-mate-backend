@@ -16,6 +16,7 @@ from .services.cache import get_parsed_schedule, get_parsed_announcements
 from .services.startup.header_handler import HeaderHandler
 from .services.startup.response_json import ResponseJson
 from .services.startup.user_handler import UserHandler
+from notification_bot.models import Group
 
 logger = getLogger('logdna')
 vk_api = VkApi(token=settings.VK_API_SECRET_KEY)
@@ -223,6 +224,7 @@ class UserView(APIView):
         if is_user_in_db:
             user_object_from_db = User.objects.get(
                 vk_user_id=user_id)  # User object for serializing
+            old_group = user_object_from_db.group
             validated_data = {
                 'vk_user_id': user_id,
                 'group': request.data['group']
@@ -232,6 +234,14 @@ class UserView(APIView):
                 user_object_from_db, data=validated_data, partial=True)
             if serializer.is_valid():
                 serializer.save()
+
+                old_group_object = Group.objects.get(group_number=old_group)
+                if user_object_from_db in old_group_object.subscribers.all():
+                    old_group_object.subscribers.remove(user_object_from_db)
+                    old_group_object.save()
+                    new_group_object = Group.objects.get(group_number=validated_data['group'])
+                    new_group_object.subscribers.add(user_object_from_db)
+                    new_group_object.save()
                 return Response(validated_data, status=status.HTTP_200_OK)
             else:
                 return Response({
