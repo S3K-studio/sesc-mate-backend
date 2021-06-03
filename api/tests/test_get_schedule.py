@@ -1,16 +1,10 @@
-from typing import List, Dict
 from unittest.mock import patch
 
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from utils.schedule_mock import ScheduleMock
-
-
-def get_schedule(*args) -> List[List[Dict]]:
-    schedule_mock = ScheduleMock()
-    return [schedule_mock.get_schedule_mock()]
+from utils.get_mocked_schedule import get_schedule
 
 
 class GetScheduleTest(APITestCase):
