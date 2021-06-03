@@ -4,26 +4,26 @@ from typing import List, Dict
 
 
 class AnnouncementsMock:
-    schedule_mock: List[Dict]
+    announcements_mock: List[Dict]
 
     def __init__(self):
-        self.schedule_mock = []
+        self.announcements_mock = []
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(AnnouncementsMock, cls).__new__(cls)
         return cls.instance
 
-    def get_schedule_mock(self) -> List[Dict]:
-        if self.schedule_mock:
-            return self.schedule_mock
+    def get_annoucements_mock(self) -> List[Dict]:
+        if self.announcements_mock:
+            return self.announcements_mock
 
         current_dir = os.path.dirname(__file__)
-        schedule_mock_json_path = os.path.join(current_dir, 'announcements_mock.json')
+        announcements_mock_json_path = os.path.join(current_dir, 'announcements_mock.json')
 
-        with open(schedule_mock_json_path, 'r', encoding='utf-8') as schedule:
-            self.schedule_mock = json.load(schedule)
-        return self.schedule_mock
+        with open(announcements_mock_json_path, 'r', encoding='utf-8') as announcements:
+            self.announcements_mock = json.load(announcements)
+        return self.announcements_mock
 
 
 if __name__ == '__main__':
