@@ -1,5 +1,5 @@
 from hashlib import sha1
-from datetime import datetime, timedelta
+from datetime import timedelta, datetime
 
 import vk_api
 from celery.utils.log import get_task_logger
@@ -99,7 +99,7 @@ def send_message(vk_ids: List[int], group: int, day: int) -> List[dict]:
 
 
 def skip_notification(changed_day: int) -> bool:
-    today = (datetime.today() + timedelta(hours=5)).weekday()
+    today = (datetime.utcnow() + timedelta(hours=5)).weekday()
     if today == 7:
         return False
     return changed_day < today

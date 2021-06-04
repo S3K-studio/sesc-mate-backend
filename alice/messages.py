@@ -6,17 +6,18 @@ from api.services.cache import get_parsed_schedule
 
 from typing import Union
 import pymorphy2
+from datetime import datetime, timedelta
 
 
 class Messages:
     START = {
-        'text': 'Привет хуе мае, скажи свой класс',
-        'tts': 'Привет хуе мае, скажи свой класс'
+        'text': 'Привет, это sesc mate, попроси меня запомнить твой класс, или спроси расписание',
+        'tts': 'Привет, это sesc mate, попроси меня запомнить твой класс, или спроси расписание'
     }
 
     UNEXISTING_GROUP = {
-        'text': 'Чел, такого класса нет',
-        'tts': 'Чел, такого класса нет'
+        'text': 'К сожалению, такого класса нет',
+        'tts': 'К сожалению, такого класса нет'
     }
 
     NO_GROUP = {
@@ -37,6 +38,7 @@ class Messages:
             text = 'В воскресенье вообще-то выходной'
         else:
             schedule = get_parsed_schedule(day_number, group_number)
+            # schedule = get_parsed_schedule(day_number, group_number, fake=1)
             print(schedule)
             if day_number == 1:
                 text_first_part = f'В понедельник у {raw_group} '
@@ -84,9 +86,14 @@ class Messages:
         return text_tts
 
     @staticmethod
-    #TODO обработка завтра послезавтра
     def __get_day_number_(raw_day):
         morph = pymorphy2.MorphAnalyzer(lang='ru')
 
         normal_form = morph.parse(raw_day)[0].normal_form
-        return days_dict_for_alice[normal_form]
+
+        if normal_form == 'завтра':
+            return (datetime.utcnow() + timedelta(days=1, hours=5)).weekday() + 1
+        elif normal_form == 'послезавтра':
+            return (datetime.utcnow() + timedelta(days=2, hours=5)).weekday() + 1
+        else:
+            return days_dict_for_alice[normal_form]

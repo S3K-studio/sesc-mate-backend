@@ -60,6 +60,11 @@ class AliceView(APIView):
                 else:
                     return Response(create_response(messages.NO_GROUP, end=False))
 
+            if len(intents) == 0:
+                raw_message = request['request']['command']
+                if raw_message.strip() == '':
+                    return Response(create_response(messages.START, end=False))
+
             print('no intends')
         except Exception as e:
             print(e)

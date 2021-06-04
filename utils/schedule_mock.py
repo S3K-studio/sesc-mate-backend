@@ -1,6 +1,6 @@
 import json
 import os
-from typing import List, Dict
+from typing import List, Dict, Union
 
 
 class ScheduleMock:
@@ -14,7 +14,7 @@ class ScheduleMock:
             cls.instance = super(ScheduleMock, cls).__new__(cls)
         return cls.instance
 
-    def get_schedule_mock(self) -> List[Dict]:
+    def get_schedule_mock(self) -> List[Union[Dict, List]]:
         if self.schedule_mock:
             return self.schedule_mock
 
