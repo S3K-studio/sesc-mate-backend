@@ -33,18 +33,23 @@ def bot(request: dict) -> None:
                 command_string: str = msg_text.replace(f'{settings.BOT_USERNAME},', '')
                 command_string: str = command_string.replace(settings.BOT_USERNAME, '')
                 commands_to_bot: List[str] = command_string.split()
-                if len(commands_to_bot) != 0:
+                if len(commands_to_bot) == 2:
                     if commands_to_bot[0] == 'подписаться':
                         vk_bot.chat_sub(group=commands_to_bot[1], event=event)
 
                     elif commands_to_bot[0] == 'отписаться':
                         vk_bot.chat_unsub(group=commands_to_bot[1], event=event)
 
-                    elif commands_to_bot[0] == 'help':
+                elif len(commands_to_bot) == 1:
+                    if commands_to_bot[0] == 'help':
                         vk_bot.help(event=event)
 
                     elif commands_to_bot[0] == 'подписки':
                         vk_bot.subscribed_to(event=event)
+
+                    else:
+                        vk_bot.help(event=event)
+
                 else:
                     vk_bot.help(event=event)
 

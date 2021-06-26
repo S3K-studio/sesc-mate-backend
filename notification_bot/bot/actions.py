@@ -124,14 +124,21 @@ class Bot:
             )
         else:
             group_to_sub: Group = Group.objects.get(group_number=reversed_groups_defaultdict[group])
-            group_to_sub.chats.add(Chat.objects.get(peer_id=event['peer_id']))
-            group_to_sub.save()
+            if group_to_sub not in Chat.objects.get(peer_id=event['peer_id']).subscribed_to.all():
+                group_to_sub.chats.add(Chat.objects.get(peer_id=event['peer_id']))
+                group_to_sub.save()
 
-            self.vk.messages.send(
-                peer_id=event['peer_id'],
-                random_id=get_random_id(),
-                message=Messages.CHAT_SUBED
-            )
+                self.vk.messages.send(
+                    peer_id=event['peer_id'],
+                    random_id=get_random_id(),
+                    message=Messages.CHAT_SUBED
+                )
+            else:
+                self.vk.messages.send(
+                    peer_id=event['peer_id'],
+                    random_id=get_random_id(),
+                    message=Messages.ALREADY_SUB_GROUP
+                )
 
     def chat_unsub(self, event: dict, group: str) -> None:
         if reversed_groups_defaultdict[group] is None:
@@ -142,14 +149,21 @@ class Bot:
             )
         else:
             group_to_unsub: Group = Group.objects.get(group_number=reversed_groups_defaultdict[group])
-            group_to_unsub.chats.remove(Chat.objects.get(peer_id=event['peer_id']))
-            group_to_unsub.save()
+            if group_to_unsub in Chat.objects.get(peer_id=event['peer_id']).subscribed_to.all():
+                group_to_unsub.chats.remove(Chat.objects.get(peer_id=event['peer_id']))
+                group_to_unsub.save()
 
-            self.vk.messages.send(
-                peer_id=event['peer_id'],
-                random_id=get_random_id(),
-                message=Messages.CHAT_UNSUBED
-            )
+                self.vk.messages.send(
+                    peer_id=event['peer_id'],
+                    random_id=get_random_id(),
+                    message=Messages.CHAT_UNSUBED
+                )
+            else:
+                self.vk.messages.send(
+                    peer_id=event['peer_id'],
+                    random_id=get_random_id(),
+                    message=Messages.NOT_SUB_GROUP
+                )
 
     def help(self, event: dict) -> None:
         self.vk.messages.send(

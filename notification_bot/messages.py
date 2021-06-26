@@ -18,6 +18,8 @@ class Messages:
            '\"@sescmate, help\" - узнать команды\n' \
            '\"@sescmate, подписки\" - узнать на какие классы подписана эта беседа\n'
     SUBLIST_EMPTY = 'Вы ни на что не подписаны('
+    NOT_SUB_GROUP = 'Вы не подписаны на этот класс'
+    ALREADY_SUB_GROUP = 'Вы уже подписаны на этот класс'
 
     @staticmethod
     def create_notification_message(group: int, day_number: int) -> str:
