@@ -39,3 +39,4 @@ groups_dict = dict(GROUP_CHOICES)
 
 reversed_groups_dict = dict([(title.lower(), num) for num, title in GROUP_CHOICES])
 reversed_groups_defaultdict = defaultdict(lambda: None, reversed_groups_dict)
+print(reversed_groups_defaultdict)

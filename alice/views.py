@@ -32,6 +32,7 @@ class AliceView(APIView):
                 raw_group = set_group_intent['slots']['group']['value'].replace(' ', '')
 
                 if reversed_groups_defaultdict[raw_group] is None:
+                    print(raw_group)
                     return Response(create_response(messages.UNEXISTING_GROUP, end=False))
 
                 else:
@@ -64,6 +65,8 @@ class AliceView(APIView):
                 raw_message = request['request']['command']
                 if raw_message.strip() == '':
                     return Response(create_response(messages.START, end=False))
+                else:
+                    return Response(create_response(messages.WHAT, end=False))
 
             print('no intends')
         except Exception as e:

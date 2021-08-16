@@ -156,3 +156,4 @@ celerybeat-schedule.*
 /.vscode
 
 .env
+/identifier.sqlite

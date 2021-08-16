@@ -14,7 +14,8 @@ CACHES = {
 }
 
 ALLOWED_HOSTS = [
-    'localhost'
+    'localhost',
+    '5f7c4cc80468.ngrok.io',
 ]
 
 VK_BOT_TOKEN = os.getenv('DEBUG_VK_BOT_TOKEN')

@@ -5,6 +5,7 @@ import json
 
 from ..data_from_sesc import get_schedule
 from ..parser import ScheduleParser
+from utils.get_mocked_schedule import get_schedule
 
 
 def _get_schedule_cache_key(weekday: int, group: int) -> str:
@@ -12,10 +13,13 @@ def _get_schedule_cache_key(weekday: int, group: int) -> str:
     return f"schedule_weekday{weekday}_group{group}"
 
 
-def get_parsed_schedule(weekday: int, group: int, force_update: bool = False) -> List[List[Dict]]:
+def get_parsed_schedule(weekday: int, group: int, force_update: bool = False, fake=False) -> List[List[Dict]]:
     """Получить закешированное расписание для класса на день недели"""
     key = _get_schedule_cache_key(weekday, group)
-    schedule = cache.get(key)
+    if fake:
+        schedule = get_schedule()[0]
+    else:
+        schedule = cache.get(key)
     if force_update or schedule is None:  # Если нет расписания в кэше
         sesc_schedule = get_schedule(weekday, group)
         sesc_json = json.loads(sesc_schedule)

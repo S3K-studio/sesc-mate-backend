@@ -25,6 +25,11 @@ class Messages:
         'tts': 'Я не знаю вашего класса',
     }
 
+    WHAT = {
+        'text': 'Извините, я вас не поняла',
+        'tts': 'Извините, я вас не поняла',
+    }
+
     def schedule_message(self, raw_day: str, group: Union[str, int]) -> dict:
         if isinstance(group, str):
             raw_group = group
@@ -37,8 +42,8 @@ class Messages:
         if day_number == 7:
             text = 'В воскресенье вообще-то выходной'
         else:
-            schedule = get_parsed_schedule(day_number, group_number)
-            # schedule = get_parsed_schedule(day_number, group_number, fake=1)
+            # schedule = get_parsed_schedule(day_number, group_number)
+            schedule = get_parsed_schedule(day_number, group_number, fake=1)
             print(schedule)
             if day_number == 1:
                 text_first_part = f'В понедельник у {raw_group} '
